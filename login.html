@@ -67,22 +67,33 @@
             </div>
         </div>
     </div>
-    <script src="auth.js"></script>
     <script>
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
             
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging in...';
 
-            if (error) {
-                alert(error.message);
-            } else {
-                window.location.href = 'index.html';
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (error) {
+                    alert('Login Error: ' + error.message);
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                console.error('Fatal error during login:', err);
+                alert('An unexpected error occurred: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
             }
         });
     </script>

@@ -168,15 +168,43 @@ async function renderMachines(machinesToRender) {
         const card = document.createElement('div');
         card.className = 'machine-card glass-panel';
 
-        const itemsHtml = machine.items ? machine.items.map(item => `
-            <div class="item-row">
-                <span class="item-name">${item.name}</span>
-                <div class="item-meta">
-                    <span class="item-price">$${item.price.toFixed(2)}</span>
-                    <span class="stock-badge ${item.stock ? '' : 'out'}" title="${item.stock ? 'In Stock' : 'Out of Stock'}"></span>
+        const itemsByStatus = machine.items ? machine.items.reduce((acc, item) => {
+            const category = item.category || 'other';
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(item);
+            return acc;
+        }, {}) : {};
+
+        const renderCategory = (categoryName, items) => {
+            if (!items || items.length === 0) return '';
+            return `
+                <div class="category-section" style="margin-bottom: 15px;">
+                    <h4 style="font-size: 0.8rem; color: var(--ucf-gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 201, 4, 0.2); padding-bottom: 3px;">
+                        ${categoryName}
+                    </h4>
+                    ${items.map(item => `
+                        <div class="item-row">
+                            <span class="item-name">${item.name}</span>
+                            <div class="item-meta">
+                                <span class="item-price">$${item.price.toFixed(2)}</span>
+                                <span class="stock-badge ${item.stock ? '' : 'out'}" title="${item.stock ? 'In Stock' : 'Out of Stock'}"></span>
+                                ${canEdit ? `
+                                <button class="delete-item-btn" onclick="deleteItem('${item.id}')" title="Delete Item">
+                                    <i data-lucide="x" size="12"></i>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-            </div>
-        `).join('') : '';
+            `;
+        };
+
+        const itemsHtml = `
+            ${renderCategory('Beverages', itemsByStatus.beverages)}
+            ${renderCategory('Snacks', itemsByStatus.snacks)}
+            ${renderCategory('Other', itemsByStatus.other)}
+        `;
 
         card.innerHTML = `
             <div class="machine-header">
@@ -199,11 +227,11 @@ async function renderMachines(machinesToRender) {
                 ` : ''}
             </div>
             <div class="items-list">
-                ${itemsHtml.length ? itemsHtml : '<p class="text-secondary" style="font-size: 0.9rem; padding: 10px;">No items added yet.</p>'}
+                ${(machine.items && machine.items.length > 0) ? itemsHtml : '<p class="text-secondary" style="font-size: 0.9rem; padding: 10px;">No items added yet.</p>'}
             </div>
             <div class="add-item-btn-container ${session ? '' : 'hidden'}">
                 <button class="btn-secondary" onclick="openAddItemModal('${machine.id}')">
-                    + Add Item
+                    + Add Items
                 </button>
             </div>
         `;
@@ -387,27 +415,102 @@ window.deleteMachine = async function (machineId) {
     }
 };
 
+// Delete Item Logic
+window.deleteItem = async function (itemId) {
+    if (!confirm('Are you sure you want to remove this item?')) {
+        return;
+    }
+
+    const { error } = await supabase
+        .from('items')
+        .delete()
+        .eq('id', itemId);
+
+    if (error) {
+        alert(error.message);
+    } else {
+        await fetchMachines();
+    }
+};
+
 // Add Item Logic
+const itemsContainer = document.getElementById('items-container');
+const addMoreItemsBtn = document.getElementById('add-more-items-btn');
+let itemRowCount = 1;
+
 window.openAddItemModal = function (machineId) {
     const machine = machines.find(m => m.id == machineId);
     if (!machine) return;
 
     document.getElementById('target-machine-id').value = machineId;
     document.getElementById('target-machine-name').textContent = machine.name;
+    
+    // Reset to one row
+    itemsContainer.innerHTML = createItemRow(0);
+    itemRowCount = 1;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
     openModal(addItemModal);
 };
+
+function createItemRow(index) {
+    return `
+        <div class="item-entry-row glass-panel" style="padding: 15px; margin-bottom: 15px; border: 1px solid var(--glass-border);">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Item Name</label>
+                    <input type="text" class="item-name-input" required placeholder="e.g. Coca Cola">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Price ($)</label>
+                    <input type="number" class="item-price-input" step="0.01" required placeholder="1.50">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Category</label>
+                    <select class="item-category-input" style="width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary); outline: none;">
+                        <option value="beverages">Beverage</option>
+                        <option value="snacks">Snack</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group" style="margin-bottom: 0;">
+                    <input type="checkbox" class="item-stock-input" checked id="stock-check-${index}">
+                    <label for="stock-check-${index}">In Stock</label>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+if (addMoreItemsBtn) {
+    addMoreItemsBtn.addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.innerHTML = createItemRow(itemRowCount++);
+        itemsContainer.appendChild(div.firstElementChild);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+}
 
 addItemForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const machine_id = document.getElementById('target-machine-id').value;
-    const name = document.getElementById('item-name').value;
-    const price = parseFloat(document.getElementById('item-price').value);
-    const stock = document.getElementById('item-stock').checked;
+    const itemRows = document.querySelectorAll('.item-entry-row');
+    const itemsToInsert = [];
+
+    itemRows.forEach(row => {
+        const name = row.querySelector('.item-name-input').value;
+        const price = parseFloat(row.querySelector('.item-price-input').value);
+        const category = row.querySelector('.item-category-input').value;
+        const stock = row.querySelector('.item-stock-input').checked;
+        
+        itemsToInsert.push({ machine_id, name, price, category, stock });
+    });
 
     const { data, error } = await supabase
         .from('items')
-        .insert([{ machine_id, name, price, stock }]);
+        .insert(itemsToInsert);
 
     if (error) {
         alert(error.message);

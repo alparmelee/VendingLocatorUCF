@@ -307,6 +307,26 @@ h2 {
     background: var(--danger);
 }
 
+.delete-item-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    opacity: 0.6;
+}
+
+.delete-item-btn:hover {
+    color: var(--danger);
+    background: rgba(248, 113, 113, 0.1);
+    opacity: 1;
+}
+
 .add-item-btn-container {
     margin-top: auto;
 }
@@ -356,6 +376,9 @@ h2 {
     padding: 30px;
     background: #1a1a1a;
     border: 1px solid var(--ucf-gold);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 16px;
 }
 
 .modal-header {
@@ -401,6 +424,11 @@ h2 {
 .form-group input:focus {
     outline: none;
     border-color: var(--ucf-gold);
+}
+
+.item-category-input option {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 .checkbox-group {

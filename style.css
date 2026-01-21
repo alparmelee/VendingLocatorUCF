@@ -162,6 +162,7 @@ h2 {
     margin-bottom: 40px;
     padding: 10px;
     height: 400px;
+    position: relative;
 }
 
 #map {
@@ -170,6 +171,44 @@ h2 {
     border-radius: 12px;
     z-index: 1;
     /* Ensure it stays below modals */
+}
+
+.map-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    border-radius: 12px;
+}
+
+.instruction-content {
+    pointer-events: auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--ucf-gold);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.btn-small {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 0.8rem;
 }
 
 /* Machine Grid */
@@ -204,6 +243,17 @@ h2 {
     font-size: 1.3rem;
     margin-bottom: 5px;
     color: var(--ucf-gold);
+}
+
+.owner-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon.danger:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: var(--danger);
+    border-color: var(--danger);
 }
 
 .machine-location {

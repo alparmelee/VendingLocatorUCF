@@ -1,9 +1,23 @@
 // auth.js
 
-// Check session on page load
+// Check session and setup logout on page load
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check session
     const { data: { session } } = await supabase.auth.getSession();
     updateAuthUI(session);
+
+    // Setup logout handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                alert(error.message);
+            } else {
+                window.location.href = 'index.html'; // Explicitly redirect to home
+            }
+        });
+    }
 });
 
 // Update UI based on auth state
@@ -21,17 +35,4 @@ function updateAuthUI(session) {
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (logoutBtn) logoutBtn.classList.add('hidden');
     }
-}
-
-// Logout handler
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            alert(error.message);
-        } else {
-            window.location.reload();
-        }
-    });
 }

@@ -52,6 +52,13 @@
         <!-- Map Section -->
         <section id="map-section" class="glass-panel">
             <div id="map"></div>
+            <div id="map-instruction" class="map-overlay hidden">
+                <div class="instruction-content glass-panel">
+                    <i data-lucide="map-pin"></i>
+                    <span>Click on the map to place the machine</span>
+                    <button id="cancel-selection" class="btn-secondary btn-small">Cancel</button>
+                </div>
+            </div>
         </section>
 
         <!-- Dashboard / Machine List -->
@@ -76,7 +83,46 @@
                     <label for="machine-location">Location Description</label>
                     <input type="text" id="machine-location" required placeholder="e.g. Near the main entrance">
                 </div>
+                <div id="location-picker-status" class="form-group" style="padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border: 1px dashed var(--glass-border); margin-bottom: 15px; text-align: center;">
+                    <p id="location-status-text" style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                        <i data-lucide="check-circle" size="14" style="vertical-align: middle; color: #2ed573;"></i> 
+                        Location selected
+                    </p>
+                    <input type="hidden" id="machine-lat">
+                    <input type="hidden" id="machine-lng">
+                </div>
                 <button type="submit" class="btn-primary full-width">Create Machine</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Machine Modal -->
+    <div id="edit-machine-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h2>Edit Vending Machine</h2>
+                <button class="close-modal-btn" data-target="edit-machine-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="edit-machine-form">
+                <input type="hidden" id="edit-machine-id">
+                <div class="form-group">
+                    <label for="edit-machine-name">Machine Name / ID</label>
+                    <input type="text" id="edit-machine-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-machine-location">Location Description</label>
+                    <input type="text" id="edit-machine-location" required>
+                </div>
+                <div id="edit-location-picker-status" class="form-group" style="padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border: 1px dashed var(--glass-border); margin-bottom: 15px; text-align: center;">
+                    <p id="edit-location-status-text" style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                        <i data-lucide="map-pin" size="14" style="vertical-align: middle;"></i> 
+                        Location fixed. Click "Change Location" to move.
+                    </p>
+                    <input type="hidden" id="edit-machine-lat">
+                    <input type="hidden" id="edit-machine-lng">
+                    <button type="button" id="change-location-btn" class="btn-secondary btn-small" style="margin-top: 10px; width: auto; display: inline-block;">Change Location</button>
+                </div>
+                <button type="submit" class="btn-primary full-width">Save Changes</button>
             </form>
         </div>
     </div>

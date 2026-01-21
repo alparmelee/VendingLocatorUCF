@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCF Vending Locator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="logo-container">
+                <div class="ucf-logo">
+                    <span class="ucf-text">UCF</span>
+                </div>
+                <h1>Vending Locator</h1>
+            </div>
+            <div class="header-actions">
+                <button id="open-add-machine-btn" class="btn-primary auth-required hidden">
+                    <i data-lucide="plus"></i> Add Machine
+                </button>
+                <div id="auth-controls">
+                    <a href="login.html" id="login-btn" class="btn-secondary">Login</a>
+                    <button id="logout-btn" class="btn-secondary hidden">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container glass-panel">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search for snacks, drinks, or locations...">
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section id="map-section" class="glass-panel">
+            <div id="map"></div>
+        </section>
+
+        <!-- Dashboard / Machine List -->
+        <main id="machine-list" class="machine-grid">
+            <!-- Machines will be injected here by JS -->
+        </main>
+    </div>
+
+    <!-- Add Machine Modal -->
+    <div id="add-machine-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h2>Add Vending Machine</h2>
+                <button class="close-modal-btn" data-target="add-machine-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="add-machine-form">
+                <div class="form-group">
+                    <label for="machine-name">Machine Name / ID</label>
+                    <input type="text" id="machine-name" required placeholder="e.g. Student Union 1st Floor">
+                </div>
+                <div class="form-group">
+                    <label for="machine-location">Location Description</label>
+                    <input type="text" id="machine-location" required placeholder="e.g. Near the main entrance">
+                </div>
+                <button type="submit" class="btn-primary full-width">Create Machine</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="add-item-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h2>Add Item to <span id="target-machine-name">Machine</span></h2>
+                <button class="close-modal-btn" data-target="add-item-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="add-item-form">
+                <input type="hidden" id="target-machine-id">
+                <div class="form-group">
+                    <label for="item-name">Item Name</label>
+                    <input type="text" id="item-name" required placeholder="e.g. Coca Cola">
+                </div>
+                <div class="form-group">
+                    <label for="item-price">Price ($)</label>
+                    <input type="number" id="item-price" step="0.01" required placeholder="1.50">
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="item-stock" checked>
+                    <label for="item-stock">In Stock</label>
+                </div>
+                <button type="submit" class="btn-primary full-width">Add Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

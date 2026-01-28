@@ -126,9 +126,9 @@ function updateMapMarkers(machinesToDisplay) {
 
             const popupContent = `
                 <div style="font-family: 'Outfit', sans-serif;">
-                    <h3 style="margin: 0 0 5px 0; color: #000;">${machine.name}</h3>
-                    <p style="margin: 0; font-size: 0.9rem; color: #666;">${machine.location}</p>
-                    <p style="margin: 5px 0 0 0; font-size: 0.8rem;"><strong>${machine.items ? machine.items.length : 0}</strong> items</p>
+                    <h3 style="margin: 0 0 5px 0; color: #000; border-bottom: 1px solid #eee; padding-bottom: 5px;">${machine.name}</h3>
+                    <p style="margin: 5px 0; font-size: 0.9rem; color: #666;">${machine.location}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #FFC904; font-weight: bold; cursor: pointer;" onclick="scrollToMachine('${machine.id}')">Click to view items ↓</p>
                 </div>
             `;
 
@@ -138,8 +138,27 @@ function updateMapMarkers(machinesToDisplay) {
     });
 }
 
+// Global scroll function
+window.scrollToMachine = function(id) {
+    const element = document.getElementById(`machine-${id}`);
+    if (element) {
+        // Calculate position with offset to avoid being cut off
+        const offset = 100; // Pixels from top
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+
+        element.classList.add('highlight-card');
+        setTimeout(() => element.classList.remove('highlight-card'), 2000);
+    }
+};
+
 // Render Functions
-async function renderMachines(machinesToRender) {
+async function renderMachines(machinesToRender, query = '') {
     machineListEl.innerHTML = '';
 
     if (machinesToRender.length === 0) {
@@ -167,6 +186,7 @@ async function renderMachines(machinesToRender) {
         
         const card = document.createElement('div');
         card.className = 'machine-card glass-panel';
+        card.id = `machine-${machine.id}`;
 
         const itemsByStatus = machine.items ? machine.items.reduce((acc, item) => {
             const category = item.category || 'other';
@@ -177,12 +197,20 @@ async function renderMachines(machinesToRender) {
 
         const renderCategory = (categoryName, items) => {
             if (!items || items.length === 0) return '';
+            
+            // Filter items by query if present
+            const filteredItems = query 
+                ? items.filter(item => item.name.toLowerCase().includes(query.toLowerCase()))
+                : items;
+
+            if (filteredItems.length === 0) return '';
+
             return `
                 <div class="category-section" style="margin-bottom: 15px;">
                     <h4 style="font-size: 0.8rem; color: var(--ucf-gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 201, 4, 0.2); padding-bottom: 3px;">
                         ${categoryName}
                     </h4>
-                    ${items.map(item => `
+                    ${filteredItems.map(item => `
                         <div class="item-row">
                             <span class="item-name">${item.name}</span>
                             <div class="item-meta">
@@ -257,7 +285,7 @@ searchInput.addEventListener('input', (e) => {
         return machine.items && machine.items.some(item => item.name.toLowerCase().includes(query));
     });
 
-    renderMachines(filteredMachines);
+    renderMachines(filteredMachines, query);
     updateMapMarkers(filteredMachines);
 });
 
